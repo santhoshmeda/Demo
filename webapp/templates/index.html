@@ -1,0 +1,188 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>IoT Demo</title>
+
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/morris.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/jquery-ui.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/bootstrap.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/lab7.css') }}">
+  <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static',filename='icon/favicon.ico') }}">
+
+  <script src="{{ url_for('static',filename='js/jquery-3.1.1.min.js') }}"></script>
+  <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static',filename='js/raphael.min.js') }}"></script>
+  <script src="{{ url_for('static',filename='js/morris.min.js') }}"></script>
+  <script src="{{ url_for('static',filename='js/jquery-ui.min.js') }}"></script>
+  <script src="{{ url_for('static',filename='js/lab7.js') }}"></script>
+
+</head>
+
+<body>
+  <div class="panel container">
+    <div class="container well well-sm">
+      <h4 id='title'>Raspberry Pi IoT Demo (Led's, Temperature and Stepper Motor)</h4>
+    </div>
+
+    <div class="container well">
+      <!-- Dashboard Row-->
+      <table id="con">
+        <tr>
+          <td id="params-cell">
+            <div id="tabs">
+              <ul>
+                <li><a href="#tabs-environmental-data">Temperature</a></li>
+                <li><a href="#tabs-environmental-chart">Temperature Chart</a></li>
+                <li><a href="#tabs-inertial-data">Pressure</a></li>
+                <li><a href="#tabs-inertial-chart">Pressure Chart</a></li>
+                <li><a href="#tabs-led-control">LED Control</a></li>
+                <li><a href="#tabs-ledpwm">PWM Leds</a></li>
+                <li><a href="#tabs-stepper">Stepper</a></li>
+              </ul>
+              <div id="tabs-environmental-data">
+                <table class="table table-hover table-striped">
+                  <tr class=param-header>
+                    <th>Time (PST)</th>
+                    <th>Temperature (&degC)</th>
+                    <th>Temperature (&degF)</th>
+                  </tr>
+                  <tr class=env-param-row>
+                  </tr>
+                  <tr class=env-param-row>
+                  </tr>
+                  <tr class=env-param-row>
+                  </tr>
+                  <tr class=env-param-row>
+                  </tr>
+                </table>
+              </div>
+              <div id="tabs-environmental-chart">
+                <div id="env-chart" style="height: 90%; width: 90%;"></div>
+              </div>
+              <div id="tabs-inertial-data">
+                <table class="table table-hover table-striped">
+                  <tr class=param-header>
+                    <th>Time (PST)</th>
+                    <th>Accel X</th>
+                    <th>Accel Y</th>
+                    <th>Accel Z</th>
+                    <th>Pitch</th>
+                    <th>Roll</th>
+                    <th>Yaw</th>
+                    <th>Compass</th>
+                  </tr>
+                  <tr class=imu-param-row>
+                  </tr>
+                  <tr class=imu-param-row>
+                  </tr>
+                  <tr class=imu-param-row>
+                  </tr>
+                  <tr class=imu-param-row>
+                  </tr>
+                </table>
+              </div>
+              <div id="tabs-inertial-chart">
+                <div id="accel-chart" style="height: 90%; width: 90%;"></div>
+              </div>
+              <div id="tabs-led-control">
+                <div class="col-sm led_button">
+                  <button type='button' id="red_led_btn" class="btn btn-md btn-default">Toggle LED</button>
+                  <div class="col-sm-3 led_label">
+                    <h4><span id="red_led_label" class="label label-default">&#9728</span></span></h4>
+                  </div>
+                </div>
+                <div class="col-sm led_button">
+                  <button type='button' id="grn_led_btn" class="btn btn-md btn-default">Toggle LED</button>
+                  <div class="col-sm-3 led_label">
+                    <h4><span id="grn_led_label" class="label label-default">&#9728</span></span></h4>
+                  </div>
+                </div>
+                <div class="col-sm led_button">
+                  <button type='button' id="blu_led_btn" class="btn btn-md btn-default">Toggle LED</button>
+                  <div class="col-sm-3 led_label">
+                    <h4><span id="blu_led_label" class="label label-default">&#9728</span></span></h4>
+                  </div>
+                </div>
+
+              </div>
+              <div id="tabs-ledpwm">
+                <table>
+                  <tr>
+                    <td class="slider-col">
+                      <p>
+                        <h4>RED LED</h4>
+                        DUTY CYCLE (%) <input type="text" id="pwm1" readonly>
+                      </p>
+                      <div id="slider1"></div>
+                    </td>
+                    <td class="slider-col">
+                      <p>
+                        <h4>GREEN LED</h4>
+                        DUTY CYCLE (%) <input type="text" id="pwm2" readonly>
+                      </p>
+                      <div id="slider2"></div>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              <div id="tabs-stepper">
+                <table>
+                  <tr>
+                    <td>
+                      <!-- <div class="container well"> -->
+                        <table class="table">
+                          <tr>
+                            <td><h6>Motor Status  <span id='motor_state' class="label label-default">&#8635</span></h6></td>
+                          </tr>
+                          <tr>
+                            <td><h6>Motor Position(steps)  <span id="motor_position" class="label label-default">100</span></h6></td>
+                          </tr>
+                        </table>
+                      <!-- </div> -->
+                    </td>
+                    <td>
+                      <table class="table">
+                        <tr>
+                          <td>New Motor Speed(rpm):</td>
+                          <td><input id='motor_speed' type="number" min="0" max="250" name="rpm" value=100></td>
+                        </tr>
+                        <tr>
+                          <td>Number of Steps:</td>
+                          <td><input id='motor_steps' type="number" min="0" max="600" name="steps" value=100></td>
+                        </tr>
+                        <tr>
+                          <td>Motor Direction:</td>
+                          <td><select id='motor_direction' type="text" name="direction" value="CW">
+                                <option value="CW">Clockwise</option>
+                                <option value="CCW">Counter Clockwise</option>
+                              </select>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+                <div id="motor-chart" style="height: 90%; width: 90%;"></div>
+                <div id="stepper_buttons" class="container well">
+                  <button type='button' class="btn btn-default" id='motor_start'>START</button>
+                  <button type='button' class="btn btn-default" id='motor_stop'>STOP</button>
+                  <button type='button' class="btn btn-default" id='motor_zero'>POS ZERO</button>
+                  <button type='button' class="btn btn-success" id='motor_multistep'>MULTI-STEP</button>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var iotSource = new EventSource("{{ url_for('myData') }}");
+      // intercept the incoming states from SSE
+  </script>
+</body>
+
+</html>
