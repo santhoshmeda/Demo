@@ -3,6 +3,8 @@ $(document).ready(function() {
   // global arrays needed to buffer data points across events
   var env_table_data = [];
   var env_chart_data = [];
+  var pre_table_data = [];
+  // var pre_chart_data = [];
   var led1;
   var led2;
   var led3;
@@ -16,8 +18,10 @@ $(document).ready(function() {
     parsed_json_data = JSON.parse(double_quote_formatted_data);
     console.log(parsed_json_data);
     clearEnvTables();
+    clearPrTables();
     updateEnvironmentalTableData(parsed_json_data);
-    updateEnvironChartData(parsed_json_data);
+    updateEnvironChartData(parsed_json_data);    
+    updatePressureTableData(parsed_json_data);
     updateStepperMotor(parsed_json_data);
     updateLeds(1,parsed_json_data['led_states']['led_red'])
     updateLeds(2,parsed_json_data['led_states']['led_grn'])
@@ -153,6 +157,33 @@ $(document).ready(function() {
     });
     // console.log(env_chart);
     env_chart.setData(chart_data);
+  }
+
+  // =================Pressure Table =================================
+  function clearPrTables() {
+    $('tr.pressure-param-row').each(function(i) {
+      $(this).empty();
+    });
+  }
+  updatePressureTableData = (function (d) {
+    pre_table_data.push(d);
+    if (pre_table_data.length > 4) {
+      pre_table_data.shift();
+      clearEnvTables();
+      }
+      updatePressureTable(pre_table_data);
+  });
+
+  function updatePressureTable(data) {
+    $('tr.pressure-param-row').each(function(i) {
+      // temp_far = ((data[i]['environmental']['temperature']['reading']) * (9.0/5.0)) + 32
+      var tm = '<td>' + data[i]['timestamp'] + '</td>';
+      var t = '<td>' + data[i]['environmental']['pressure'].reading.toFixed(2) + '</td>';
+      // var p = '<td>' + temp_far.toFixed(2) + '</td>';
+      $(this).append(tm);
+      $(this).append(t);
+      // $(this).append(p);
+    });
   }
   // ===================================================================
   // RED LED SLIDER
