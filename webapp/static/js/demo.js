@@ -4,7 +4,7 @@ $(document).ready(function() {
   var env_table_data = [];
   var env_chart_data = [];
   var pre_table_data = [];
-  // var pre_chart_data = [];
+  var pre_chart_data = [];
   var led1;
   var led2;
   var led3;
@@ -20,8 +20,9 @@ $(document).ready(function() {
     clearEnvTables();
     clearPrTables();
     updateEnvironmentalTableData(parsed_json_data);
-    updateEnvironChartData(parsed_json_data);    
+    updateEnvironChartData(parsed_json_data);
     updatePressureTableData(parsed_json_data);
+    updatePressureChartData(parsed_json_data);
     updateStepperMotor(parsed_json_data);
     updateLeds(1,parsed_json_data['led_states']['led_red'])
     updateLeds(2,parsed_json_data['led_states']['led_grn'])
@@ -185,6 +186,41 @@ $(document).ready(function() {
       // $(this).append(p);
     });
   }
+
+  var pressure_chart = new Morris.Line({
+    element: 'pressure-chart',
+    data:[
+    ],
+    xkey: 'time',
+    ykeys:['h'],
+    labels:['%RH']
+  });
+
+  //build the chart data
+  function updatePressureChartData (json_obj) {
+    pre_chart_data.push(json_obj);
+    if (pre_chart_data.length >16) {
+      pre_chart_data.shift();
+    }
+    updatePressureChart(pre_chart_data);
+  }
+
+  //update the Chart
+  function updatePressureChart(data) {
+    var chart_data = [];
+    data.forEach(function(d) {
+      env_record = {
+        time: d['timestamp'],
+        h: d['environmental']['pressure'].reading.toFixed(2)
+      };
+      chart_data.push(env_record);
+      // console.log(env_record);
+    });
+    // console.log(pressure_chart);
+    pressure_chart.setData(chart_data);
+  }
+
+
   // ===================================================================
   // RED LED SLIDER
   $( "#slider1" ).slider({
