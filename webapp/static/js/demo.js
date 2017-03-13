@@ -2,6 +2,7 @@ $(document).ready(function() {
 
   // global arrays needed to buffer data points across events
   var env_table_data = [];
+  var env_chart_data = [];
   var led1;
   var led2;
   var led3;
@@ -16,6 +17,7 @@ $(document).ready(function() {
     console.log(parsed_json_data);
     clearEnvTables();
     updateEnvironmentalTableData(parsed_json_data);
+    updateEnvironChartData(parsed_json_data);
     updateStepperMotor(parsed_json_data);
     updateLeds(1,parsed_json_data['led_states']['led_red'])
     updateLeds(2,parsed_json_data['led_states']['led_grn'])
@@ -110,7 +112,7 @@ $(document).ready(function() {
       $(this).append(p);
     });
   }
-  // ============================== ENV TABLE =================================
+  // ============================ENV Chart Data ================================
   function clearEnvTables() {
     $('tr.env-param-row').each(function(i) {
       $(this).empty();
@@ -120,6 +122,38 @@ $(document).ready(function() {
   // Renders the jQuery-ui elements
   $("#tabs").tabs();
 
+  var env_chart = new Morris.Line({
+    element: 'temp-chart',
+    data:[
+    ],
+    xkey: 'time',
+    ykeys:['h'],
+    labels:['%RH']
+  });
+
+  //build the chart data
+  function updateEnvironChartData (json_obj) {
+    env_chart_data.push(json_obj);
+    if (env_chart_data.length >16) {
+      env_chart_data.shift();
+    }
+    updateEnvironChart(env_chart_data);
+  }
+
+  //update the Chart
+  function updateEnvironChart(data) {
+    var chart_data = [];
+    data.forEach(function(d) {
+      env_record = {
+        time: d['timestamp'],
+        h: d['environmental']['temperature'].reading.toFixed(2)
+      };
+      chart_data.push(env_record);
+      // console.log(env_record);
+    });
+    // console.log(env_chart);
+    env_chart.setData(chart_data);
+  }
   // ===================================================================
   // RED LED SLIDER
   $( "#slider1" ).slider({
