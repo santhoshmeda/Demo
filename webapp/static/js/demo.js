@@ -165,17 +165,17 @@ $(document).ready(function() {
 
     /* update the LEDs based on their SSE state monitor */
     function updateLeds(ledNum, ledValue) {
-      console.log(ledNum,ledValue);
+      // console.log(ledNum,ledValue);
       if (ledNum === 1) {
         if (ledValue === 1) {
           $('#red_led_label').toggleClass('label-danger', true);
           // $('#red_led_label').text('ON');
-          console.log('Inside Red Led (true)');
+          // console.log('Inside Red Led (true)');
           led1 = "ON";
         } else if (ledValue === 0) {
           $('#red_led_label').toggleClass('label-danger', false);
           // $('#red_led_label').text('OFF');
-          console.log('Inside Red Led (false)');
+          // console.log('Inside Red Led (false)');
           led1 = "OFF";
         }
       } else if (ledNum === 2) {
